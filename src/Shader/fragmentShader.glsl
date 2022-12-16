@@ -257,4 +257,6 @@ void main()
 	vec3 ambient = 0.15 * materialColor;
 	pixelOutputColor.rgb += ambient;
 	pixelOutputColor.rgb += pixelOutput_tmp.rgb;
+
+
 }

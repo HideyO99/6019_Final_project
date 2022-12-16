@@ -54,6 +54,7 @@ static void error_callback(int error, const char* description)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 static void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 void updateInstanceObj(cShaderManager* pShaderManager, cVAOManager* pVAOManager, glm::mat4x4 matView, glm::mat4x4 matProjection);
@@ -105,9 +106,16 @@ int main(void)
 
     glfwMakeContextCurrent(window);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
+    GLFWcursor* crosshairCursor = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+    
+
     glfwSetScrollCallback(window, scroll_callback);
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     glfwSwapInterval(1);
+
+
 
     //initialize imgui
     cGUI* gui_ = new cGUI(&g_cameraEye,&g_cameraTarget);
@@ -230,7 +238,7 @@ int main(void)
         //glm::mat4x4 matModel;
         glm::mat4x4 matProjection;
         glm::mat4x4 matView;
-
+        
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float)height;
 
@@ -259,8 +267,11 @@ int main(void)
         //matProjection = glm::perspective(0.6f, ratio, 0.1f, 10000.0f);
         //glUniformMatrix4fv(mView_location, 1, GL_FALSE, glm::value_ptr(matView));
         //glUniformMatrix4fv(mProjection_location, 1, GL_FALSE, glm::value_ptr(matProjection));
-
+        
+        glfwSetCursor(window, crosshairCursor);
+        
         updateInstanceObj(pShaderManager, pVAOManager, matView, matProjection);
+
 
         gui_->ImGUICreateFrame();
 
@@ -269,7 +280,6 @@ int main(void)
 
         //set window title
         //std::stringstream 
-
     }
 
     gui_->ImGUI_shutdown();
@@ -537,6 +547,7 @@ void drawObj(cMeshObj* pCurrentMeshObject, glm::mat4x4 mat_PARENT_Model, cShader
         cMeshObj* pCurrentChildMeshObject = *itCurrentMesh;
         drawObj(pCurrentChildMeshObject, matModel, pShaderManager, pVAOManager, matView, matProjection);
     }
+
 }
 
 void light0Setup() //lamp
@@ -782,6 +793,18 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     {
         ::g_cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     }
+}
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+    {
+        //popup_menu();
+    }
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        //popup_menu();
+    }
+
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
