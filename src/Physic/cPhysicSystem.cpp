@@ -248,6 +248,23 @@ bool cPhysicSystem::objPosUpdate()
             obj_it->second->position += obj_it->second->direction * step;
             obj_it->second->update();
         }
+        if (obj_it->second->pMeshObj->meshName == "bullet")
+        {
+            obj_it->second->position += obj_it->second->direction * 10.f;
+            obj_it->second->update();
+        }
     }
+    return true;
+}
+
+bool cPhysicSystem::fire(glm::vec3 target)
+{
+    //float step = 0.1f;
+    std::map<std::string, cObject*>::iterator obj_it = mapOBJ.find("bullet");
+    
+
+    obj_it->second->direction = target;
+
+    
     return true;
 }

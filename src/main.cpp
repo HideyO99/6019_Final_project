@@ -259,6 +259,7 @@ int main(void)
     //g_physicSys.boundingBox.pDrawInfo = pVAOManager->findDrawInfoAddr("box1");
     //g_physicSys.createObject(pVAOManager->findMeshObjAddr("P51"), pVAOManager->findDrawInfoAddr("P51"));
 
+    g_physicSys.gameUpdate();
     cTime::update();
 
     while (!glfwWindowShouldClose(window))
@@ -303,6 +304,7 @@ int main(void)
         glfwSetCursor(window, crosshairCursor);
         
         updateInstanceObj(pShaderManager, pVAOManager, matView, matProjection);
+
 
 
         gui_->ImGUICreateFrame();
@@ -352,7 +354,7 @@ void updateInstanceObj(cShaderManager* pShaderManager, cVAOManager* pVAOManager,
         //}
         if (pCurrentMeshObject->instanceName == "bullet")
         {
-            pCurrentMeshObject->position = ::g_cameraEye;
+            //pCurrentMeshObject->position = ::g_cameraEye;
 
         }
         if (pCurrentMeshObject->isIslandModel)
@@ -726,11 +728,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
     if (key == GLFW_KEY_Q)
     {
-        ::g_cameraEye.y -= CAMERA_MOVE_SPEED;
+        //::g_cameraEye.y -= CAMERA_MOVE_SPEED;
     }
     if (key == GLFW_KEY_E)
     {
-        ::g_cameraEye.y += CAMERA_MOVE_SPEED;
+        //::g_cameraEye.y += CAMERA_MOVE_SPEED;
     }
     if (key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
     {
@@ -764,7 +766,9 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
-
+    //glutWarpPointer(x, y);
+    //glfwSetMousePos(xposIn, yposIn);
+    glfwSetCursorPos(window,xposIn, yposIn);
     if (firstMouse)
     {
         lastX = xpos;
@@ -780,7 +784,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
         lastX = xpos;
         lastY = ypos;
 
-        float sensitivity = 0.1f; // change this value to your liking
+        float sensitivity = 0.5f; // change this value to your liking
         xoffset *= sensitivity;
         yoffset *= sensitivity;
 
@@ -812,7 +816,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     }
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
-        //popup_menu();
+        std::map<std::string, cObject*>::iterator obj_it = g_physicSys.mapOBJ.find("bullet");
+        //g_physicSys.mapOBJ.find("bullet");
+        obj_it->second->position = ::g_cameraEye;
+        ::g_physicSys.fire(::g_cameraFront);
     }
 
 }

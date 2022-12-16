@@ -24,6 +24,8 @@ public:
 
 	bool objPosUpdate();
 
+	bool fire(glm::vec3 target);
+
 	//cBoundingBox boundingBox;
 	//cModelDrawInfo* pDrawInfo;
 	//std::vector<cObject*> vec_Objects;

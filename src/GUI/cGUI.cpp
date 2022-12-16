@@ -18,6 +18,7 @@ bool cGUI::ImGUI_init(GLFWwindow* window)
     ImGui::CreateContext();
     static ImGuiIO& io = ImGui::GetIO();
 
+
     //platform / render bindings
     if (!ImGui_ImplGlfw_InitForOpenGL(window, true) || !ImGui_ImplOpenGL3_Init("#version 460"))
     {
@@ -37,6 +38,7 @@ void cGUI::ImGUI_shutdown()
 
 bool cGUI::ImGUICreateFrame()
 {
+
     bool result = false;
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -52,7 +54,15 @@ bool cGUI::ImGUICreateFrame()
 
 bool cGUI::ImGUI_render()
 {
+    ImGui::Begin("crosshair");
+    ImVec2 window_size = ImGui::GetIO().DisplaySize;
+    ImVec2 window_center = ImVec2(window_size.x / 2, window_size.y / 2);
+    ImGui::GetForegroundDrawList()->AddCircle(window_center, window_size.x / 200, IM_COL32(0, 0, 255, 255), 0, 5);
+    ImGui::End();
+
     ImGui::Begin("Model Settings");
+
+
     //create tabs
     ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
     if (ImGui::BeginTabBar("Object", tab_bar_flags))
