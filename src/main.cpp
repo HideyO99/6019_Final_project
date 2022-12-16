@@ -23,6 +23,8 @@
 #include "Light/cLightManager.h"
 #include "GUI/cGUI.h"
 #include "Texture/cTextureManager.h"
+#include "time.h"
+#include "Physic/cPhysicSystem.h"
 
 #define MODEL_LIST_XML          "asset/model.xml"
 #define VERTEX_SHADER_FILE      "src/shader/vertexShader.glsl"
@@ -33,7 +35,7 @@ glm::vec3 g_cameraEye = glm::vec3(0.0, 5.0, 0.0f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
 glm::vec3 g_upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 g_cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-bool bIsWalkAround = false;
+bool bIsWalkAround = true;
 bool firstMouse = true;
 float yaw = -90.0f;	
 float pitch = 0.0f;
@@ -41,9 +43,18 @@ float lastX = 1280.0f / 2.0;
 float lastY = 800.0 / 2.0;
 float fov = 45.0f;
 
+double g_LastCall;
+double g_LastCall5s;
+double g_CurrentTime;
+
+const int FRAMES_PER_SECOND = 30;
+const double FRAME_RATE = (double)1 / FRAMES_PER_SECOND;
+
+#define SEC_UPDATE 5
+
 cLightManager* g_pTheLightManager = NULL;
 static GLFWwindow* window = nullptr;
-
+cPhysicSystem g_physicSys;
 cTextureManager* g_pTextureManager = NULL;
 
 
@@ -65,6 +76,8 @@ void light2Setup(cVAOManager* pVAOManager);
 void light3Setup();
 void light4Setup();
 void checkBorder();
+
+void updateByFrameRate();
 
 int main(void)
 {
@@ -115,7 +128,7 @@ int main(void)
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     glfwSwapInterval(1);
 
-
+    srand((unsigned)time(NULL));
 
     //initialize imgui
     cGUI* gui_ = new cGUI(&g_cameraEye,&g_cameraTarget);
@@ -217,9 +230,10 @@ int main(void)
     result = pVAOManager->setInstanceObjScale("terrain", 10);
     result = pVAOManager->setInstanceObjPosition("terrain", glm::vec4(0.f, -0.1f, 0.f, 0.f));
     result = pVAOManager->setTexture("terrain", "photos_2018_7_4_fst_water-blue.bmp", 0);
-
     result = pVAOManager->setSkyBoxFlag("skybox",true);
 
+    result = pVAOManager->setInstanceObjScale("bullet", 0.1);
+    result = pVAOManager->setInstanceObjRGB("bullet", glm::vec4(0.f, 0.f, 1.f, 1.f));
 
     //light0Setup(); // Dir light
     //light1Setup(pVAOManager);// torch
@@ -227,7 +241,25 @@ int main(void)
     //light3Setup();
     //light4Setup();
 
+    cModelDrawInfo drawingInformation;
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("enemy1"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("enemy1"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("enemy2"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("enemy2"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("enemy3"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("enemy3"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("enemy4"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("enemy4"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("enemy5"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("enemy5"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("bullet"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("bullet"), &drawingInformation);
+    //g_physicSys.createEnvironment(drawingInformation);
+    //g_physicSys.boundingBox.pMeshObj = pVAOManager->findMeshObjAddr("box1");
+    //g_physicSys.boundingBox.pDrawInfo = pVAOManager->findDrawInfoAddr("box1");
+    //g_physicSys.createObject(pVAOManager->findMeshObjAddr("P51"), pVAOManager->findDrawInfoAddr("P51"));
 
+    cTime::update();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -245,7 +277,7 @@ int main(void)
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-       
+        updateByFrameRate();
 
         //glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 cameraDirection = glm::normalize(g_cameraEye - g_cameraTarget);
@@ -318,6 +350,11 @@ void updateInstanceObj(cShaderManager* pShaderManager, cVAOManager* pVAOManager,
         //    g_pTheLightManager->plight[9]->position = glm::vec4(pCurrentMeshObject->position, 1) + glm::vec4(-2.5f, -0.2f, 0, 0);
 
         //}
+        if (pCurrentMeshObject->instanceName == "bullet")
+        {
+            pCurrentMeshObject->position = ::g_cameraEye;
+
+        }
         if (pCurrentMeshObject->isIslandModel)
         {
             pShaderManager->setShaderUniform1f("bIsIlandModel", (GLfloat)GL_TRUE);
@@ -326,7 +363,7 @@ void updateInstanceObj(cShaderManager* pShaderManager, cVAOManager* pVAOManager,
         {
             pShaderManager->setShaderUniform1f("bIsSkyboxObject", (GLfloat)GL_TRUE);
             pCurrentMeshObject->position = ::g_cameraEye;
-            pCurrentMeshObject->scale = 7500.f;
+            pCurrentMeshObject->scale = glm::vec3(7500.f, 7500.f, 7500.f);
         }
         matModel = glm::mat4x4(1.0f);
 
@@ -357,36 +394,9 @@ void drawObj(cMeshObj* pCurrentMeshObject, glm::mat4x4 mat_PARENT_Model, cShader
     glDepthMask(GL_FALSE);
 #endif
 
-    if (pCurrentMeshObject->meshName == "flame")
-    {
-        pShaderManager->setShaderUniform1f("bUseDiscardTexture", (GLfloat)GL_TRUE);
 
-        if ((pCurrentMeshObject->scale < 8.5))
-        {
-            pCurrentMeshObject->scale += 0.05f;
-            g_pTheLightManager->plight[1]->attenuation -= glm::vec4( 0.001,  0.0001,  0.00002, 0);
-            g_pTheLightManager->plight[2]->attenuation -= glm::vec4( 0.001,  0.0001,  0.00002, 0);
-            g_pTheLightManager->plight[3]->attenuation -= glm::vec4( 0.001,  0.0001,  0.00002, 0);
-            g_pTheLightManager->plight[4]->attenuation -= glm::vec4( 0.001,  0.0001,  0.00002, 0);
-            g_pTheLightManager->plight[5]->attenuation -= glm::vec4( 0.001,  0.0001,  0.00002, 0);
-            g_pTheLightManager->plight[6]->attenuation -= glm::vec4( 0.001,  0.0001,  0.00002, 0);
-        }
-        else
-        {
-            pCurrentMeshObject->scale = 7;
-            g_pTheLightManager->plight[1]->attenuation = glm::vec4(0.7f, 0.1f, 0.2f, 1.0f);
-            g_pTheLightManager->plight[2]->attenuation = glm::vec4(0.7f, 0.1f, 0.2f, 1.0f);
-            g_pTheLightManager->plight[3]->attenuation = glm::vec4(0.7f, 0.1f, 0.2f, 1.0f);
-            g_pTheLightManager->plight[4]->attenuation = glm::vec4(0.7f, 0.1f, 0.2f, 1.0f);
-            g_pTheLightManager->plight[5]->attenuation = glm::vec4(0.7f, 0.1f, 0.2f, 1.0f);
-            g_pTheLightManager->plight[6]->attenuation = glm::vec4(0.7f, 0.1f, 0.2f, 1.0f);
-        }
-        
-    }
-    else
-    {
-        pShaderManager->setShaderUniform1f("bUseDiscardTexture", (GLfloat)GL_FALSE);
-    }
+    pShaderManager->setShaderUniform1f("bUseDiscardTexture", (GLfloat)GL_FALSE);
+    
 
     GLuint texture07_Number = g_pTextureManager->getTexttureID(pCurrentMeshObject->textures[7]);
     GLuint texture07_Unit = 7;
@@ -406,8 +416,8 @@ void drawObj(cMeshObj* pCurrentMeshObject, glm::mat4x4 mat_PARENT_Model, cShader
     glm::mat4 matRoationX = glm::rotate(glm::mat4(1.0f), pCurrentMeshObject->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 
     // Scale the object
-    float uniformScale = pCurrentMeshObject->scale;
-    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), glm::vec3(uniformScale, uniformScale, uniformScale));
+
+    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), pCurrentMeshObject->scale);
 
     matModel = matModel * matTranslation;
 
@@ -727,7 +737,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         //::g_cameraEye = glm::vec3(-5.5f, -3.4f, 15.0f);
         //::g_cameraEye = glm::vec3(0.0, 100.0, 300.0f);
         //::g_cameraTarget = glm::vec3(5.0f, 0.0f, 0.0f);
-        bIsWalkAround = !bIsWalkAround;
+        //bIsWalkAround = !bIsWalkAround;
     }
     checkBorder();
 }
@@ -816,3 +826,24 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         fov = 45.0f;
 }
 
+void updateByFrameRate()
+{
+    cTime::update();
+    double deltaTime = cTime::getDeltaTime();
+    g_CurrentTime += deltaTime;
+
+    if (g_CurrentTime >= g_LastCall + FRAME_RATE)
+    {
+        double elapsedTime = g_CurrentTime - g_LastCall;
+        g_LastCall = g_CurrentTime;
+
+        g_physicSys.updateSystem(elapsedTime);
+    }
+    if (g_CurrentTime >= g_LastCall5s + SEC_UPDATE)
+    {
+        double elapsedTime = g_CurrentTime - g_LastCall5s;
+        g_LastCall5s = g_CurrentTime;
+
+        g_physicSys.gameUpdate();
+    }
+}

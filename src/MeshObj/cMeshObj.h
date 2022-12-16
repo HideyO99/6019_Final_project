@@ -14,7 +14,7 @@ public:
 	std::string instanceName;
 	glm::vec3 position;
 	glm::vec3 rotation;
-	float scale;
+	glm::vec3 scale;
 	bool isWireframe;
 	glm::vec4 color_RGBA;
 	bool bUse_RGBA_colour;

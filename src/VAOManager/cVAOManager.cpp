@@ -288,7 +288,7 @@ bool cVAOManager::setInstanceObjScale(std::string meshObjName, float value)
 	}
 	cMeshObj* pCurrentMeshObject = itCurrentMesh->second;
 
-	pCurrentMeshObject->scale = value;
+	pCurrentMeshObject->scale = glm::vec3(value);
 
 	return true;
 }
@@ -493,7 +493,7 @@ bool cVAOManager::setDungeonTexture(std::string meshObjName, std::string texture
 			itCurrentMesh->second->bUse_RGBA_colour = false;
 			itCurrentMesh->second->textures[0] = textureFile;
 			itCurrentMesh->second->textureRatios[0] = 1;
-			itCurrentMesh->second->scale = 0.01;
+			itCurrentMesh->second->scale = glm::vec3(0.01);
 			itCurrentMesh->second->position.x = itCurrentMesh->second->position.x * 5;
 			itCurrentMesh->second->position.z = itCurrentMesh->second->position.z * 5;
 			itCurrentMesh->second->isVisible = true;
@@ -536,7 +536,7 @@ bool cVAOManager::setTorchTexture(std::string meshObjName, std::string textureFi
 			itCurrentMesh->second->textures[0] = textureFile;
 			itCurrentMesh->second->textures[7] = markTextureFile;
 			itCurrentMesh->second->textureRatios[0] = 1;
-			itCurrentMesh->second->scale = 7.5;
+			itCurrentMesh->second->scale = glm::vec3(7.5f);
 			itCurrentMesh->second->position.x = itCurrentMesh->second->position.x * 5;
 			itCurrentMesh->second->position.y = 4.5f;
 			itCurrentMesh->second->position.z = itCurrentMesh->second->position.z * 5;

@@ -37,6 +37,9 @@
     <Filter Include="XML">
       <UniqueIdentifier>{273e7c12-b5c7-40b1-bfdf-beec341454fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physic">
+      <UniqueIdentifier>{f0d45730-0d99-46e3-ac82-9286b299608f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GUI\cGUI.cpp">
@@ -105,6 +108,24 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physic\cObject.cpp">
+      <Filter>Physic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physic\cPhysicSystem.cpp">
+      <Filter>Physic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physic\cBoundingBox.cpp">
+      <Filter>Physic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physic\math.cpp">
+      <Filter>Physic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physic\Vector3.cpp">
+      <Filter>Physic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GUI\cGUI.h">
@@ -169,6 +190,24 @@
     </ClInclude>
     <ClInclude Include="src\globalOpenGL.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physic\cObject.h">
+      <Filter>Physic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physic\cPhysicSystem.h">
+      <Filter>Physic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physic\cBoundingBox.h">
+      <Filter>Physic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physic\math.h">
+      <Filter>Physic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physic\Vector3.h">
+      <Filter>Physic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
