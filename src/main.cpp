@@ -106,7 +106,7 @@ int main(void)
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
     //window = glfwCreateWindow(mode->width, mode->height, "6028 Final", pMainScreen, NULL); //full screen
-    window = glfwCreateWindow(1280, 800, "6028 Final", NULL, NULL);
+    window = glfwCreateWindow(1280, 800, "6019 Final", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
