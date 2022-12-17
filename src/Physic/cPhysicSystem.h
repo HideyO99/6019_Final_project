@@ -5,6 +5,7 @@
 #include "cTriangle.h"
 #include "../VAOManager/cModelDrawInfo.h"
 #include "cBoundingBox.h"
+#include "shape.h"
 
 #define LO -1
 #define HI  1
@@ -25,6 +26,10 @@ public:
 	bool objPosUpdate();
 
 	bool fire(glm::vec3 target);
+	bool RayCastClosest(Ray ray, cObject** hitObject);
+	bool RayCastFirstFound(Ray ray, cObject** hitObject);
+
+	int TestRaySphere(const Point& p, const Vector3& d, const Point& center, float radius);
 
 	//cBoundingBox boundingBox;
 	//cModelDrawInfo* pDrawInfo;

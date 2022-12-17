@@ -185,6 +185,7 @@
     <ClInclude Include="src\Physic\cObject.h" />
     <ClInclude Include="src\Physic\cPhysicSystem.h" />
     <ClInclude Include="src\Physic\math.h" />
+    <ClInclude Include="src\Physic\shape.h" />
     <ClInclude Include="src\Physic\Vector3.h" />
     <ClInclude Include="src\Shader\cShaderManager.h" />
     <ClInclude Include="src\Texture\C24BitBMPpixel.h" />

@@ -141,6 +141,12 @@ void cPhysicSystem::createObject(cMeshObj* meshObj,cModelDrawInfo* DrawInfo)
     pBBox->centerPointOffset = glm::vec3(pBBox->halfExtentOffset.x + (DrawInfo->minX * meshObj->scale.x), pBBox->halfExtentOffset.y + (DrawInfo->minY * meshObj->scale.y), pBBox->halfExtentOffset.z + (DrawInfo->minZ * meshObj->scale.z));
     pBBox->maxPointOffset = glm::vec3(DrawInfo->maxX * meshObj->scale.x, DrawInfo->maxY * meshObj->scale.y, DrawInfo->maxZ * meshObj->scale.z);
     pBBox->minPointOffset = glm::vec3(DrawInfo->minX * meshObj->scale.x, DrawInfo->minY * meshObj->scale.y, DrawInfo->minZ * meshObj->scale.z);
+
+    if (meshObj->meshName == "enemy")
+    {
+        Sphere* enemy = new Sphere(Point(meshObj->position), DrawInfo->extentX / 2);
+        obj->pShape = enemy;
+    }
     //vec_Objects.push_back(plane);
     //boundingBox.pMeshObj->scale = boundingBox.halfExtentOffset;
     mapOBJ.emplace(obj->pMeshObj->instanceName, obj);
@@ -228,8 +234,12 @@ bool cPhysicSystem::gameUpdate()
     {
         if (obj_it->second->pMeshObj->meshName == "enemy")
         {
-            //float dirX = LO + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (HI - LO)));
-            //float dirZ = LO + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (HI - LO)));
+            if (!obj_it->second->pMeshObj->isVisible)
+            {
+                //respawn
+                obj_it->second->position = glm::vec3(0.f,1.f,0.f);
+                obj_it->second->pMeshObj->isVisible = true;
+            }
             int dirX = (rand() % 100) - 50;
             int dirZ = (rand() % 100) - 50;
             obj_it->second->direction += glm::normalize(glm::vec3(dirX, 0, dirZ));
@@ -254,6 +264,7 @@ bool cPhysicSystem::objPosUpdate()
             obj_it->second->update();
         }
     }
+
     return true;
 }
 
@@ -264,7 +275,84 @@ bool cPhysicSystem::fire(glm::vec3 target)
     
 
     obj_it->second->direction = target;
-
+    cObject* hitObj;
+    Ray ray(obj_it->second->position, obj_it->second->direction);
+    if (RayCastClosest(ray, &hitObj))
+    {
+        hitObj->position = glm::vec3(-10000.f, -100000.f, -10000.f);
+        hitObj->pMeshObj->isVisible = false;
+    }
     
     return true;
+}
+
+bool cPhysicSystem::RayCastClosest(Ray ray, cObject** hitObject)
+{
+    cObject* closestObj = nullptr;
+    float closestDistance = FLT_MAX;
+
+    for (std::map<std::string, cObject*>::iterator obj_it = mapOBJ.begin(); obj_it != mapOBJ.end(); obj_it++)
+    {
+        if (obj_it->second->pMeshObj->meshName != "bullet")
+        {
+            if (obj_it->second->pShape->getShapeType() == TYPE_SPHERE)
+            {
+                Sphere* pSphere = dynamic_cast<Sphere*>(obj_it->second->pShape);
+                if (TestRaySphere(ray.origin, ray.direction, pSphere->Center + obj_it->second->position, pSphere->Radius))
+                {
+                    float distance = Vector3::Distance(ray.origin, obj_it->second->position);
+                    if (distance < closestDistance)
+                    {
+                        closestObj = obj_it->second;
+                        closestDistance = distance;
+                    }
+                }
+            }
+        }
+    }
+
+    *hitObject = closestObj;
+
+    return closestObj!=nullptr;
+}
+
+bool cPhysicSystem::RayCastFirstFound(Ray ray, cObject** hitObject)
+{
+    for (std::map<std::string, cObject*>::iterator obj_it = mapOBJ.begin(); obj_it != mapOBJ.end(); obj_it++)
+    {
+        if (obj_it->second->pShape->getShapeType() == TYPE_SPHERE)
+        {
+            Sphere* pSphere = dynamic_cast<Sphere*>(obj_it->second->pShape);
+            if (TestRaySphere(ray.origin, ray.direction, pSphere->Center + obj_it->second->position, pSphere->Radius))
+            {
+                *hitObject = obj_it->second;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+int cPhysicSystem::TestRaySphere(const Point& p, const Vector3& d, const Point& center, float radius)
+{
+    Point diff = p - center;
+    glm::vec3 m = glm::vec3(diff.x,diff.y,diff.z);
+    float c = Dot(m, m) - radius * radius;
+    
+
+    // intersection
+    if (c <= 0.0f) return 1;
+    float b = Dot(m, glm::vec3(d.x,d.y,d.z));
+
+    // ray origin outside sphere and ray pointing away from sphere
+    if (b > 0.0f) return 0;
+
+    float disc = b * b - c;
+
+    //  ray missing sphere
+    if (disc < 0.0f) return 0;
+
+    // Now ray must hit sphere
+    return 1;
 }

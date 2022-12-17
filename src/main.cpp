@@ -301,7 +301,7 @@ int main(void)
         //glUniformMatrix4fv(mView_location, 1, GL_FALSE, glm::value_ptr(matView));
         //glUniformMatrix4fv(mProjection_location, 1, GL_FALSE, glm::value_ptr(matProjection));
         
-        glfwSetCursor(window, crosshairCursor);
+        //glfwSetCursor(window, crosshairCursor);
         
         updateInstanceObj(pShaderManager, pVAOManager, matView, matProjection);
 

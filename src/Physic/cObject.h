@@ -1,6 +1,7 @@
 #pragma once
 #include "cBoundingBox.h"
 #include "../MeshObj/cMeshObj.h"
+#include "shape.h"
 
 
 class cObject
@@ -16,7 +17,7 @@ public:
 	void update();
 
 	cMeshObj* pMeshObj;
-	
+	cShape* pShape;
 	cBoundingBox* pBBox;
 	std::string objName;
 	glm::vec3 position;

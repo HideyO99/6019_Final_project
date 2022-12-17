@@ -209,6 +209,9 @@
     <ClInclude Include="src\Physic\Vector3.h">
       <Filter>Physic</Filter>
     </ClInclude>
+    <ClInclude Include="src\Physic\shape.h">
+      <Filter>Physic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shader\fragmentShader.glsl">
