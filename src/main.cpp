@@ -263,6 +263,17 @@ int main(void)
     g_physicSys.createObject(pVAOManager->findMeshObjAddr("bullet"), &drawingInformation);
     result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("Player"))->meshName.c_str(), drawingInformation);
     g_physicSys.createObject(pVAOManager->findMeshObjAddr("Player"), &drawingInformation);
+
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("obstacle1"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("obstacle1"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("obstacle2"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("obstacle2"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("obstacle3"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("obstacle3"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("obstacle4"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("obstacle4"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("obstacle5"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("obstacle5"), &drawingInformation);
     //g_physicSys.createEnvironment(drawingInformation);
     //g_physicSys.boundingBox.pMeshObj = pVAOManager->findMeshObjAddr("box1");
     //g_physicSys.boundingBox.pDrawInfo = pVAOManager->findDrawInfoAddr("box1");

@@ -509,7 +509,13 @@
 	<model name="player">asset/model/Boundingbox.ply
 		<modelInstance>Player<posX>0</posX><posZ>0</posZ><rotateY>0</rotateY></modelInstance>
 	</model>
-	
+	<model name="obstacle">asset/model/SM_Prop_Barrel_02.ply
+		<modelInstance>obstacle1<posX>0</posX><posZ>0</posZ><rotateY>0</rotateY></modelInstance>
+		<modelInstance>obstacle2<posX>5</posX><posZ>5</posZ><rotateY>0</rotateY></modelInstance>
+		<modelInstance>obstacle3<posX>5</posX><posZ>-5</posZ><rotateY>0</rotateY></modelInstance>
+		<modelInstance>obstacle4<posX>-5</posX><posZ>5</posZ><rotateY>0</rotateY></modelInstance>
+		<modelInstance>obstacle5<posX>-5</posX><posZ>-5</posZ><rotateY>0</rotateY></modelInstance>
+	</model>
 </PLYMODEL>
 <EYE_LOCATION>
 	<x>0</x>

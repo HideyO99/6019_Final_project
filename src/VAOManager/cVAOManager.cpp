@@ -498,6 +498,16 @@ bool cVAOManager::setDungeonTexture(std::string meshObjName, std::string texture
 			itCurrentMesh->second->position.z = itCurrentMesh->second->position.z * 5;
 			itCurrentMesh->second->isVisible = true;
 		}
+		if ((itCurrentMesh->second->meshName == "obstacle"))
+		{
+			itCurrentMesh->second->bUse_RGBA_colour = false;
+			itCurrentMesh->second->textures[0] = textureFile;
+			itCurrentMesh->second->textureRatios[0] = 1;
+			itCurrentMesh->second->scale = glm::vec3(0.1);
+			itCurrentMesh->second->position.x = itCurrentMesh->second->position.x * 5;
+			itCurrentMesh->second->position.z = itCurrentMesh->second->position.z * 5;
+			itCurrentMesh->second->isVisible = true;
+		}
 		if ((itCurrentMesh->second->meshName == "enemy"))
 		{
 			itCurrentMesh->second->bUse_RGBA_colour = true;

@@ -31,6 +31,8 @@ public:
 
 	bool TestRaySphere(const Point& p, const Vector3& d, const Point& center, float radius);
 
+	bool TestRayAABB(const Point& p, const Vector3& d, AABB aabb);
+
 	bool TestSphereAABB(const Vector3& center, float radius, AABB b);
 
 	float SqDistPointAABB(Vector3 p, AABB b);

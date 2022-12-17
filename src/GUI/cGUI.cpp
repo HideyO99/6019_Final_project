@@ -75,7 +75,7 @@ bool cGUI::ImGUI_render()
             for (int i = 0; i < pVecInstanceMeshObj->size(); i++)
             {
                 cMeshObj* pCurrentMeshObject = pVecInstanceMeshObj->at(i);
-                if (pCurrentMeshObject->meshName == "enemy")
+                if ((pCurrentMeshObject->meshName == "enemy") || (pCurrentMeshObject->meshName == "obstacle"))
                 {
                     //ImGui::Text(pCurrentMeshObject->instanceName.c_str());
                     if (ImGui::TreeNode((void*)(intptr_t)i, pCurrentMeshObject->instanceName.c_str()))

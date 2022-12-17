@@ -93,36 +93,6 @@ int TestTriangleAABB(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, cBoundingBox b)
     return TestAABBPlane(b, p);
 }
 
-//void cPhysicSystem::createEnvironment(cModelDrawInfo drawInfo)
-//{
-//    std::vector<glm::vec3> vertices;
-//    std::vector<int> triangles;
-//
-//    for (size_t i = 0; i < drawInfo.numberOfIndices; i+=3)
-//    {
-//        glm::vec3 pA = glm::vec3(drawInfo.pVertices[drawInfo.pIndices[i]].x, drawInfo.pVertices[drawInfo.pIndices[i]].y, drawInfo.pVertices[drawInfo.pIndices[i]].z);
-//        glm::vec3 pB = glm::vec3(drawInfo.pVertices[drawInfo.pIndices[i+1]].x, drawInfo.pVertices[drawInfo.pIndices[i+1]].y, drawInfo.pVertices[drawInfo.pIndices[i+1]].z);
-//        glm::vec3 pC = glm::vec3(drawInfo.pVertices[drawInfo.pIndices[i+2]].x, drawInfo.pVertices[drawInfo.pIndices[i+2]].y, drawInfo.pVertices[drawInfo.pIndices[i+2]].z);
-//
-//
-//        int hashA = CalculateHashValue(pA);
-//        int hashB = CalculateHashValue(pB);
-//        int hashC = CalculateHashValue(pC);
-//
-//        cTriangle* tri = new cTriangle(pA, pB, pC);
-//        mapEnvironmentAABBStructure[hashA].push_back(tri);
-//        if (hashA != hashB)
-//        {
-//            mapEnvironmentAABBStructure[hashB].push_back(tri);
-//        }
-//        if (hashA != hashC && hashB != hashC)
-//        {
-//            mapEnvironmentAABBStructure[hashC].push_back(tri);
-//
-//        }
-//    }
-//}
-
 void cPhysicSystem::createObject(cMeshObj* meshObj,cModelDrawInfo* DrawInfo)
 {
     cObject* obj = new cObject();
@@ -154,6 +124,14 @@ void cPhysicSystem::createObject(cMeshObj* meshObj,cModelDrawInfo* DrawInfo)
         AABB* player = new AABB( min,max );
 
         obj->pShape = player;
+    }
+    if (meshObj->meshName == "obstacle")
+    {
+        float min[3] = { pBBox->minPointOffset.x + meshObj->position.x,pBBox->minPointOffset.y + meshObj->position.y,pBBox->minPointOffset.z + meshObj->position.z };
+        float max[3] = { pBBox->maxPointOffset.x + meshObj->position.x,pBBox->maxPointOffset.y + meshObj->position.y,pBBox->maxPointOffset.z + meshObj->position.z };
+        AABB* obstacle = new AABB(min, max);
+
+        obj->pShape = obstacle;
     }
 
     mapOBJ.emplace(obj->pMeshObj->instanceName, obj);
@@ -193,8 +171,7 @@ bool cPhysicSystem::collisionCheck(cObject* pObjA, cObject* pObjB)
     
     Vector3 posB = pEnemy->Center + Vector3(pObjB->position.x, pObjB->position.y, pObjB->position.z);
     Vector3 posA = Vector3(pObjA->position.x, pObjA->position.y, pObjA->position.z);
-        //int result = TestTriangleAABB(t->pointA, t->pointB, t->pointC, *pObj->pBBox);
-    isCollision = TestSphereSphere(posB, pEnemy->Radius, posA,1);
+    isCollision = TestSphereSphere(posB, pEnemy->Radius, posA,1); //hack assume player is sphere
 
     return isCollision;
 }
@@ -272,14 +249,27 @@ bool cPhysicSystem::RayCastClosest(Ray ray, cObject** hitObject)
 
     for (std::map<std::string, cObject*>::iterator obj_it = mapOBJ.begin(); obj_it != mapOBJ.end(); obj_it++)
     {
-        if (obj_it->second->pMeshObj->meshName != "bullet")
+        if ((obj_it->second->pMeshObj->meshName != "bullet") && (obj_it->second->pMeshObj->meshName != "player"))
         {
+            float distance = Vector3::Distance(ray.origin, obj_it->second->position);
+            if (obj_it->second->pShape->getShapeType() == TYPE_AABB)
+            {
+                AABB* pAABB = dynamic_cast<AABB*>(obj_it->second->pShape);
+                if (TestRayAABB(ray.origin, ray.direction, *pAABB))
+                {
+                    //float distance = Vector3::Distance(ray.origin, obj_it->second->position);
+                    if (distance < closestDistance)
+                    {
+                        closestObj = nullptr;
+                        closestDistance = distance;
+                    }
+                }
+            }
             if (obj_it->second->pShape->getShapeType() == TYPE_SPHERE)
             {
                 Sphere* pSphere = dynamic_cast<Sphere*>(obj_it->second->pShape);
                 if (TestRaySphere(ray.origin, ray.direction, pSphere->Center + obj_it->second->position, pSphere->Radius))
                 {
-                    float distance = Vector3::Distance(ray.origin, obj_it->second->position);
                     if (distance < closestDistance)
                     {
                         closestObj = obj_it->second;
@@ -335,7 +325,42 @@ bool cPhysicSystem::TestRaySphere(const Point& p, const Vector3& d, const Point&
     // Now ray must hit sphere
     return true;
 }
+bool cPhysicSystem::TestRayAABB(const Point& p, const Vector3& d, AABB aabb)
+{
+    Vector3 dirfrac;
+    
+    dirfrac.x = 1.0f / d.x;
+    dirfrac.y = 1.0f / d.y;
+    dirfrac.z = 1.0f / d.z;
+    // lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
+    // r.org is origin of ray
+    float t1 = (aabb.Min[0] - p.x) * dirfrac.x;
+    float t2 = (aabb.Max[0] - p.x) * dirfrac.x;
+    float t3 = (aabb.Min[1] - p.y) * dirfrac.y;
+    float t4 = (aabb.Max[1] - p.y) * dirfrac.y;
+    float t5 = (aabb.Min[2] - p.z) * dirfrac.z;
+    float t6 = (aabb.Max[2] - p.z) * dirfrac.z;
 
+    float tmin = fmax(fmax(fmin(t1, t2), fmin(t3, t4)), fmin(t5, t6));
+    float tmax = fmin(fmin(fmax(t1, t2), fmax(t3, t4)), fmax(t5, t6));
+
+    // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
+    if (tmax < 0)
+    {
+        //t = tmax;
+        return false;
+    }
+
+    // if tmin > tmax, ray doesn't intersect AABB
+    if (tmin > tmax)
+    {
+       // t = tmax;
+        return false;
+    }
+
+    //t = tmin;
+    return true;
+}
 bool cPhysicSystem::TestSphereAABB(const Vector3& center, float radius, AABB b)
 {
     float sqDist = SqDistPointAABB(center, b);
