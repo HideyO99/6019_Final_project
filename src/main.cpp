@@ -242,6 +242,12 @@ int main(void)
     result = pVAOManager->setInstanceObjRGB("enemy4", glm::vec4(1.f, 1.f, 1.f, 1.f));
     result = pVAOManager->setInstanceObjRGB("enemy5", glm::vec4(1.f, 1.f, 0.f, 1.f));
 
+    result = pVAOManager->setInstanceObjWireframe("obstacle1", true);
+    result = pVAOManager->setInstanceObjWireframe("obstacle2", true);
+    result = pVAOManager->setInstanceObjWireframe("obstacle3", true);
+    result = pVAOManager->setInstanceObjWireframe("obstacle4", true);
+    result = pVAOManager->setInstanceObjWireframe("obstacle5", true);
+
     //light0Setup(); // Dir light
     //light1Setup(pVAOManager);// torch
     //light2Setup(pVAOManager); //beholder eye
