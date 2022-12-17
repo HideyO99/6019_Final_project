@@ -144,87 +144,59 @@ void cPhysicSystem::createObject(cMeshObj* meshObj,cModelDrawInfo* DrawInfo)
 
     if (meshObj->meshName == "enemy")
     {
-        Sphere* enemy = new Sphere(Point(meshObj->position), DrawInfo->extentX / 2);
+        Sphere* enemy = new Sphere(Point(0), DrawInfo->extentY/2);
         obj->pShape = enemy;
     }
-    //vec_Objects.push_back(plane);
-    //boundingBox.pMeshObj->scale = boundingBox.halfExtentOffset;
+    if (meshObj->meshName == "player")
+    {
+        float min[3] = { DrawInfo->minX,DrawInfo->minY,DrawInfo->minZ };
+        float max[3] = { DrawInfo->maxX,DrawInfo->maxY,DrawInfo->maxZ };
+        AABB* player = new AABB( min,max );
+
+        obj->pShape = player;
+    }
+
     mapOBJ.emplace(obj->pMeshObj->instanceName, obj);
-    //std::vector<glm::vec3> vertices;
-    //std::vector<int> triangles;
-    //for (size_t i = 0; i < DrawInfo->numberOfTriangles; i += 3)
-    //{
-    //    glm::vec3 pA = glm::vec3(DrawInfo->pVertices[DrawInfo->pIndices[    i]].x, DrawInfo->pVertices[DrawInfo->pIndices[    i]].y, DrawInfo->pVertices[DrawInfo->pIndices[i    ]].z) + obj->position;
-    //    glm::vec3 pB = glm::vec3(DrawInfo->pVertices[DrawInfo->pIndices[i + 1]].x, DrawInfo->pVertices[DrawInfo->pIndices[i + 1]].y, DrawInfo->pVertices[DrawInfo->pIndices[i + 1]].z) + obj->position;
-    //    glm::vec3 pC = glm::vec3(DrawInfo->pVertices[DrawInfo->pIndices[i + 2]].x, DrawInfo->pVertices[DrawInfo->pIndices[i + 2]].y, DrawInfo->pVertices[DrawInfo->pIndices[i + 2]].z) + obj->position;
-
-    //    int hashA = CalculateHashValue(pA);
-    //    int hashB = CalculateHashValue(pB);
-    //    int hashC = CalculateHashValue(pC);
-
-    //    cTriangle* tri = new cTriangle(pA, pB, pC);
-    //    mapObjAABBStructure[hashA].push_back(tri);
-    //    if (hashA != hashB)
-    //    {
-    //        mapObjAABBStructure[hashB].push_back(tri);
-    //    }
-    //    if (hashA != hashC && hashB != hashC)
-    //    {
-    //        mapObjAABBStructure[hashC].push_back(tri);
-    //    }
-    //}
 
 }
 
 void cPhysicSystem::updateSystem(float dt)
 {
     objPosUpdate();
-    //gameUpdate();
-    //bool collision;
-    //size_t numObj = vec_Objects.size();
-    //if (numObj == 0) 
-    //{
-    //    return;
-    //}
 
-    //for (size_t i = 0; i < numObj; i++)
-    //{
-    //    vec_Objects[i]->applyForce(glm::vec3(0, -0.0981f, 0));
-    //    vec_Objects[i]->integrate(dt);
-    //}
+    std::map<std::string, cObject*>::iterator playerObj = mapOBJ.find("Player");
 
-    //for (size_t i = 0; i < numObj; i++)
-    //{
-    //    vec_Objects[i]->killAllForces();
-    //    vec_Objects[i]->update();
-    //}
-    //for (size_t i = 0; i < numObj; i++)
-    //{
-    //    int hash = CalculateHashValue(vec_Objects[i]->position);
-    //    auto hash_it = mapEnvironmentAABBStructure.find(hash);
-    //    if (hash_it !=mapEnvironmentAABBStructure.end())
-    //    {
-    //        for (size_t j = 0; j < mapEnvironmentAABBStructure[hash].size(); j++)
-    //        {
-    //            collision = collisionCheck(vec_Objects[i], mapEnvironmentAABBStructure[hash].at(j));
-    //            if (collision)
-    //            {
-    //                vec_Objects[i]->position.y = vec_Objects[i]->prevPosition.y;
-    //                vec_Objects[i]->velocity.y = 0;
-    //            }
-    //        }
-    //    }
-    //}
+    for (std::map<std::string, cObject*>::iterator obj_it = mapOBJ.begin(); obj_it != mapOBJ.end(); obj_it++)
+    {
+        if (obj_it->second->pMeshObj->meshName == "enemy")
+        {
+            bool tmp =
+                collisionCheck(playerObj->second, obj_it->second);
+            if (tmp)
+            {
+                obj_it->second->isHover = true;
+            }
+            else
+            {
+                obj_it->second->isHover = false;
+            }
+        }
+    }
+
 }
 
-bool cPhysicSystem::collisionCheck(cObject* pObj, cTriangle* t)
+bool cPhysicSystem::collisionCheck(cObject* pObjA, cObject* pObjB)
 {
-    int result = TestTriangleAABB(t->pointA, t->pointB, t->pointC, *pObj->pBBox);
-    if (result == 0)
-    {
-        return false;
-    }
-    return true;
+    bool isCollision = false;
+
+    Sphere* pEnemy = dynamic_cast<Sphere*>(pObjB->pShape);
+    
+    Vector3 posB = pEnemy->Center + Vector3(pObjB->position.x, pObjB->position.y, pObjB->position.z);
+    Vector3 posA = Vector3(pObjA->position.x, pObjA->position.y, pObjA->position.z);
+        //int result = TestTriangleAABB(t->pointA, t->pointB, t->pointC, *pObj->pBBox);
+    isCollision = TestSphereSphere(posB, pEnemy->Radius, posA,1);
+
+    return isCollision;
 }
 
 bool cPhysicSystem::gameUpdate()
@@ -239,6 +211,12 @@ bool cPhysicSystem::gameUpdate()
                 //respawn
                 obj_it->second->position = glm::vec3(0.f,1.f,0.f);
                 obj_it->second->pMeshObj->isVisible = true;
+            }
+            if (obj_it->second->isHover)
+            {
+                obj_it->second->position = glm::vec3(-10000.f, -100000.f, -10000.f);
+                obj_it->second->pMeshObj->isVisible = false;
+                obj_it->second->isHover = false;
             }
             int dirX = (rand() % 100) - 50;
             int dirZ = (rand() % 100) - 50;
@@ -257,6 +235,7 @@ bool cPhysicSystem::objPosUpdate()
         {
             obj_it->second->position += obj_it->second->direction * step;
             obj_it->second->update();
+
         }
         if (obj_it->second->pMeshObj->meshName == "bullet")
         {
@@ -334,7 +313,7 @@ bool cPhysicSystem::RayCastFirstFound(Ray ray, cObject** hitObject)
     return false;
 }
 
-int cPhysicSystem::TestRaySphere(const Point& p, const Vector3& d, const Point& center, float radius)
+bool cPhysicSystem::TestRaySphere(const Point& p, const Vector3& d, const Point& center, float radius)
 {
     Point diff = p - center;
     glm::vec3 m = glm::vec3(diff.x,diff.y,diff.z);
@@ -342,17 +321,56 @@ int cPhysicSystem::TestRaySphere(const Point& p, const Vector3& d, const Point& 
     
 
     // intersection
-    if (c <= 0.0f) return 1;
+    if (c <= 0.0f) return true;
     float b = Dot(m, glm::vec3(d.x,d.y,d.z));
 
     // ray origin outside sphere and ray pointing away from sphere
-    if (b > 0.0f) return 0;
+    if (b > 0.0f) return false;
 
     float disc = b * b - c;
 
     //  ray missing sphere
-    if (disc < 0.0f) return 0;
+    if (disc < 0.0f) return false;
 
     // Now ray must hit sphere
-    return 1;
+    return true;
+}
+
+bool cPhysicSystem::TestSphereAABB(const Vector3& center, float radius, AABB b)
+{
+    float sqDist = SqDistPointAABB(center, b);
+    return sqDist <= radius * radius;
+}
+
+float cPhysicSystem::SqDistPointAABB(Vector3 p, AABB b)
+{
+    float sqDist = 0.0f;
+
+    float v;
+    v = p.x;
+    if (v < b.Min[0]) sqDist += (b.Min[0] - v) * (b.Min[0] - v);
+    if (v > b.Max[0]) sqDist += (v - b.Max[0]) * (v - b.Max[0]);
+
+    v = p.y;
+    if (v < b.Min[1]) sqDist += (b.Min[1] - v) * (b.Min[1] - v);
+    if (v > b.Max[1]) sqDist += (v - b.Max[1]) * (v - b.Max[1]);
+
+    v = p.z;
+    if (v < b.Min[2]) sqDist += (b.Min[2] - v) * (b.Min[2] - v);
+    if (v > b.Max[2]) sqDist += (v - b.Max[2]) * (v - b.Max[2]);
+
+    return sqDist;
+}
+
+int cPhysicSystem::TestSphereSphere(const Vector3& posA, float radiusA, const Vector3& posB, float radiusB)
+{
+    // Calculate squared distance between centers
+    Vector3 d = posA - posB;
+    glm::vec3 tmp = glm::vec3(d.x, d.y, d.z);
+    float dist2 = Dot(tmp, tmp);
+
+    // Spheres intersect if squared distance is less
+    // than squared sum of radii
+    float radiusSum = radiusA + radiusB;
+    return dist2 <= radiusSum * radiusSum;
 }

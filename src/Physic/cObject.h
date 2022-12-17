@@ -28,5 +28,6 @@ public:
 	glm::vec3 force;
 	float damping;
 	float invMass;
+	bool isHover;
 };
 

@@ -3,6 +3,7 @@
 cObject::cObject()
 {
 	//position = &pMeshObj->position;
+	isHover = false;
 }
 
 cObject::~cObject()

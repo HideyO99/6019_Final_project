@@ -506,6 +506,9 @@
 	<model name="bullet">asset/model/UV_Sphere_Cylindrical_UIV_Projection_bullet.ply
 		<modelInstance>bullet<posX>0</posX><posZ>0</posZ><rotateY>0</rotateY></modelInstance>
 	</model>
+	<model name="player">asset/model/Boundingbox.ply
+		<modelInstance>Player<posX>0</posX><posZ>0</posZ><rotateY>0</rotateY></modelInstance>
+	</model>
 	
 </PLYMODEL>
 <EYE_LOCATION>

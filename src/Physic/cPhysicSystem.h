@@ -19,7 +19,7 @@ public:
 	void createObject(cMeshObj* meshObj, cModelDrawInfo* DrawInfo);
 	void updateSystem(float dt);
 
-	bool collisionCheck(cObject* pObj, cTriangle* t);
+	bool collisionCheck(cObject* pObjA, cObject* pObjB);
 
 	bool gameUpdate();
 
@@ -29,7 +29,13 @@ public:
 	bool RayCastClosest(Ray ray, cObject** hitObject);
 	bool RayCastFirstFound(Ray ray, cObject** hitObject);
 
-	int TestRaySphere(const Point& p, const Vector3& d, const Point& center, float radius);
+	bool TestRaySphere(const Point& p, const Vector3& d, const Point& center, float radius);
+
+	bool TestSphereAABB(const Vector3& center, float radius, AABB b);
+
+	float SqDistPointAABB(Vector3 p, AABB b);
+
+	int TestSphereSphere(const Vector3& posA, float radiusA, const Vector3& posB, float radiusB);
 
 	//cBoundingBox boundingBox;
 	//cModelDrawInfo* pDrawInfo;

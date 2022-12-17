@@ -234,6 +234,13 @@ int main(void)
 
     result = pVAOManager->setInstanceObjScale("bullet", 0.1);
     result = pVAOManager->setInstanceObjRGB("bullet", glm::vec4(0.f, 0.f, 1.f, 1.f));
+    result = pVAOManager->setInstanceObjWireframe("Player", true);
+
+    result = pVAOManager->setInstanceObjRGB("enemy1", glm::vec4(1.f, 0.f, 1.f, 1.f));
+    result = pVAOManager->setInstanceObjRGB("enemy2", glm::vec4(0.f, 1.f, 1.f, 1.f));
+    result = pVAOManager->setInstanceObjRGB("enemy3", glm::vec4(0.f, 1.f, 0.f, 1.f));
+    result = pVAOManager->setInstanceObjRGB("enemy4", glm::vec4(1.f, 1.f, 1.f, 1.f));
+    result = pVAOManager->setInstanceObjRGB("enemy5", glm::vec4(1.f, 1.f, 0.f, 1.f));
 
     //light0Setup(); // Dir light
     //light1Setup(pVAOManager);// torch
@@ -254,6 +261,8 @@ int main(void)
     g_physicSys.createObject(pVAOManager->findMeshObjAddr("enemy5"), &drawingInformation);
     result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("bullet"))->meshName.c_str(), drawingInformation);
     g_physicSys.createObject(pVAOManager->findMeshObjAddr("bullet"), &drawingInformation);
+    result = pVAOManager->FindDrawInfo((pVAOManager->findMeshObjAddr("Player"))->meshName.c_str(), drawingInformation);
+    g_physicSys.createObject(pVAOManager->findMeshObjAddr("Player"), &drawingInformation);
     //g_physicSys.createEnvironment(drawingInformation);
     //g_physicSys.boundingBox.pMeshObj = pVAOManager->findMeshObjAddr("box1");
     //g_physicSys.boundingBox.pDrawInfo = pVAOManager->findDrawInfoAddr("box1");
@@ -345,13 +354,7 @@ void updateInstanceObj(cShaderManager* pShaderManager, cVAOManager* pVAOManager,
             // Skip the rest of the loop
             continue;
         }
-        //if (pCurrentMeshObject->instanceName == "boss")
-        //{
-        //    g_pTheLightManager->plight[7]->position = glm::vec4(pCurrentMeshObject->position, 1) + glm::vec4(-0.4f, 1.4f, 0, 0);
-        //    g_pTheLightManager->plight[8]->position = glm::vec4(pCurrentMeshObject->position, 1) + glm::vec4(0.7f, 1.2f, -0.3f, 0);
-        //    g_pTheLightManager->plight[9]->position = glm::vec4(pCurrentMeshObject->position, 1) + glm::vec4(-2.5f, -0.2f, 0, 0);
 
-        //}
         if (pCurrentMeshObject->instanceName == "bullet")
         {
             //pCurrentMeshObject->position = ::g_cameraEye;
@@ -741,6 +744,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         //::g_cameraTarget = glm::vec3(5.0f, 0.0f, 0.0f);
         //bIsWalkAround = !bIsWalkAround;
     }
+
     checkBorder();
 }
 void checkBorder()
@@ -817,7 +821,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
         std::map<std::string, cObject*>::iterator obj_it = g_physicSys.mapOBJ.find("bullet");
-        //g_physicSys.mapOBJ.find("bullet");
         obj_it->second->position = ::g_cameraEye;
         ::g_physicSys.fire(::g_cameraFront);
     }
@@ -843,6 +846,10 @@ void updateByFrameRate()
     {
         double elapsedTime = g_CurrentTime - g_LastCall;
         g_LastCall = g_CurrentTime;
+
+        std::map<std::string, cObject*>::iterator obj_it = g_physicSys.mapOBJ.find("Player");
+        obj_it->second->position = ::g_cameraEye;
+        obj_it->second->update();
 
         g_physicSys.updateSystem(elapsedTime);
     }
