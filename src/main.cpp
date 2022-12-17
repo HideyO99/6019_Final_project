@@ -236,11 +236,6 @@ int main(void)
     result = pVAOManager->setInstanceObjRGB("bullet", glm::vec4(0.f, 0.f, 1.f, 1.f));
     result = pVAOManager->setInstanceObjWireframe("Player", true);
 
-    result = pVAOManager->setInstanceObjRGB("enemy1", glm::vec4(1.f, 0.f, 1.f, 1.f));
-    result = pVAOManager->setInstanceObjRGB("enemy2", glm::vec4(0.f, 1.f, 1.f, 1.f));
-    result = pVAOManager->setInstanceObjRGB("enemy3", glm::vec4(0.f, 1.f, 0.f, 1.f));
-    result = pVAOManager->setInstanceObjRGB("enemy4", glm::vec4(1.f, 1.f, 1.f, 1.f));
-    result = pVAOManager->setInstanceObjRGB("enemy5", glm::vec4(1.f, 1.f, 0.f, 1.f));
 
     result = pVAOManager->setInstanceObjWireframe("obstacle1", true);
     result = pVAOManager->setInstanceObjWireframe("obstacle2", true);
